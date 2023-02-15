@@ -51,7 +51,7 @@ public class UserServiceImpl implements UserService{
 		List<UserDTO> usersDTOs = usersPage
 				.getContent()
 				.stream()
-				.map(u -> UserDTO.of(u.id(),u.getFirstName(), u.getLastName(), u.getEmail(), u.getAddress()))
+				.map(u -> UserMapper.TO_USER_DTO.apply(u))
 				.collect(Collectors.toList());
 
 		return PageDTO.of(usersDTOs);
@@ -96,13 +96,10 @@ public class UserServiceImpl implements UserService{
 		try {
 			if (CSVHelper.hasCSVFormat(file)) {
 
-				List<CreateUserDTO> usersDTOs = CSVHelper.csvToUsers(file.getInputStream());
-
-				List<User> users = usersDTOs
+				List<User> users = CSVHelper.csvToUsers(file.getInputStream())
 						.stream()
 						.map(u -> UserMapper.TO_USER.apply(u))
 						.collect(Collectors.toList());
-
 				userRepository.saveAll(users);
 			}else {
 				throw new IllegalArgumentException("Please upload a csv file!");
